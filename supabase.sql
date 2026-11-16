@@ -12,9 +12,16 @@ create table contactos (
   id               bigint generated always as identity primary key,
   usuaria_id       text not null default (auth.jwt()->>'sub'),
   nombre           text not null,
+  de_nombre        text,                  -- nombre de la usuaria (para el correo de bienvenida)
+  canal            text not null default 'telegram' check (canal in ('telegram', 'correo')),
+  email            text check (email is null or email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
   codigo           text not null unique default substr(md5(random()::text), 1, 8),
   telegram_chat_id bigint,                -- se llena cuando el contacto abre el bot
-  creado           timestamptz default now()
+  conectado        boolean generated always as (
+                     (canal = 'telegram' and telegram_chat_id is not null) or
+                     (canal = 'correo' and email is not null)) stored,
+  creado           timestamptz default now(),
+  check (canal <> 'correo' or email is not null)
 );
 
 create table viajes (
