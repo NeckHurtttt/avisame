@@ -124,7 +124,7 @@
 const C = window.CONFIG || {};
 const $ = id => document.getElementById(id);
 const ver = (id, si) => $(id).classList.toggle('oculto', !si);
-let db, viaje = null, contactos = [], relojTimer = null, ultimaUbic = 0;
+let db, invitado = null, viaje = null, contactos = [], relojTimer = null, ultimaUbic = 0;
 
 function toast(t) { $('toast').textContent = t; ver('toast', true); clearTimeout(toast.t); toast.t = setTimeout(() => ver('toast', false), 3500); }
 function falla(e) { console.error(e); toast('Error: ' + (e.message || e)); }
@@ -203,6 +203,8 @@ function pintar() {
     li.append(n, der); ul.append(li);
   }
   if (!contactos.length) ul.innerHTML = '<li class="muted">Todavía no hay contactos.</li>';
+  const inv = contactos.find(k => k.id === invitado);
+  if (!inv || inv.telegram_chat_id) { ver('c-invitar', false); if (inv) toast('✅ ' + inv.nombre + ' ya está conectada'); invitado = null; }
   const conectados = contactos.some(k => k.telegram_chat_id);
   ver('sin-contactos', !conectados);
   $('b-salgo').disabled = !conectados;
@@ -300,6 +302,7 @@ async function quitarContacto(k) {
 
 function invitar(k) {
   const url = `https://t.me/${C.TELEGRAM_BOT}?start=${k.codigo}`;
+  invitado = k.id;
   $('inv-nombre').textContent = k.nombre;
   $('inv-link').href = url; $('inv-link').textContent = url;
   const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
