@@ -2,54 +2,238 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Avisame</title>
-<meta name="theme-color" content="#1a1220">
+<meta name="description" content="Marca cuándo sales. Si no llegas a tiempo, avisamos a quienes te cuidan.">
+<meta name="theme-color" content="#fff8f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16101b" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4C20 4 11 13 11 25c0 15 21 33 21 33s21-18 21-33C53 13 44 4 32 4z' fill='%23e8457c'/%3E%3Cpath d='M32 35s-9-5.5-9-11.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3C41 29.5 32 35 32 35z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+  /* ===== Paleta: crema cálida + frambuesa, con verde menta y coral de apoyo ===== */
   :root {
-    --bg: #1a1220; --card: #261a2e; --line: #3a2a45; --text: #f6eef8; --muted: #b9a8c2;
-    --pink: #ff6fae; --pink2: #ff9ccb; --green: #4ade80; --red: #ff4d5e; --amber: #fbbf24;
+    --bg: #fff8f5;        --bg2: #fdeee9;
+    --card: #ffffff;      --line: #f1e2e0;
+    --ink: #2a1b26;       --muted: #806a78;
+    --pri: #e8457c;       --pri-ink: #ffffff;   --pri-soft: #fde6ee;   --pri-deep: #c22d62;
+    --ok: #13955f;        --ok-soft: #dcf4e8;
+    --warn: #c9760a;      --warn-soft: #fff0d9;
+    --bad: #dc3545;       --bad-soft: #fde4e6;
+    --shadow: 0 1px 2px rgb(74 30 50 / .05), 0 8px 24px rgb(74 30 50 / .07);
+    --r: 22px;
+    color-scheme: light;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-         font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 48px; }
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  h1 { font-size: 1.4rem; margin: 0; } h1 span { color: var(--pink); }
-  h2 { font-size: 1.05rem; margin: 0 0 12px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-  .muted { color: var(--muted); font-size: .92rem; }
-  label { display: block; font-size: .9rem; color: var(--muted); margin: 10px 0 4px; }
-  input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line);
-                  background: #1d1424; color: var(--text); font-size: 1rem; }
-  button { width: 100%; padding: 14px; border: 0; border-radius: 12px; font-size: 1.05rem; font-weight: 700;
-           cursor: pointer; margin-top: 12px; color: #1a1220; background: var(--pink); }
-  button:disabled { opacity: .5; cursor: default; }
-  button.verde { background: var(--green); font-size: 1.3rem; padding: 20px; }
-  button.rojo { background: var(--red); color: #fff; }
-  button.suave { background: transparent; color: var(--pink2); border: 1px solid var(--line); font-weight: 600; }
-  .reloj { font-size: 3rem; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; margin: 8px 0; }
-  .reloj.tarde { color: var(--red); }
-  .estado { text-align: center; font-weight: 700; }
-  ul { list-style: none; padding: 0; margin: 0; }
-  li { display: flex; justify-content: space-between; align-items: center; gap: 8px;
-       padding: 10px 0; border-bottom: 1px solid var(--line); }
-  li:last-child { border-bottom: 0; }
-  .ok { color: var(--green); } .espera { color: var(--amber); }
-  .x { width: auto; margin: 0; padding: 4px 10px; background: transparent; color: var(--muted); font-size: .9rem; }
-  .qr { background: #fff; border-radius: 12px; padding: 12px; width: fit-content; margin: 12px auto; }
-  .qr svg { display: block; }
-  .link { word-break: break-all; font-size: .85rem; }
-  .aviso { background: #3b1520; border-color: var(--red); }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16101b;      --bg2: #1f1625;
+      --card: #211827;    --line: #342839;
+      --ink: #f8eef4;     --muted: #b39fae;
+      --pri: #ff6b9b;     --pri-ink: #2a0b18;   --pri-soft: #3a1c2b;   --pri-deep: #ff8fb3;
+      --ok: #3fd99a;      --ok-soft: #12301f;
+      --warn: #f5b44a;    --warn-soft: #36290f;
+      --bad: #ff6970;     --bad-soft: #3d1a1e;
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px rgb(0 0 0 / .25);
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; min-height: 100dvh; color: var(--ink);
+    font: 16px/1.5 Nunito, ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: radial-gradient(120% 60% at 50% -10%, var(--bg2), var(--bg) 60%) fixed;
+  }
+  main { max-width: 460px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px 40px; }
+  h1, h2, h3, p { margin: 0; }
+  h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -.01em; }
+  .muted { color: var(--muted); }
+  .small { font-size: .9rem; }
   .oculto { display: none !important; }
-  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #000c;
-           padding: 10px 16px; border-radius: 10px; font-size: .95rem; max-width: 90vw; }
+  svg.i { width: 22px; height: 22px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Cabecera */
+  header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; margin-bottom: 18px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 1.45rem; font-weight: 900; letter-spacing: -.02em; }
+  .logo svg { width: 30px; height: 30px; }
+  .logo b { color: var(--pri); font-weight: 900; }
+
+  /* Tarjetas */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card > h2 { margin-bottom: 4px; }
+  .card > h2 + p { margin-bottom: 16px; }
+  .bloqueada { opacity: .55; }
+
+  /* Botones */
+  button, .btn {
+    font: inherit; font-weight: 800; border: 0; cursor: pointer; border-radius: 16px;
+    min-height: 52px; padding: 12px 18px; width: 100%;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform .12s ease, filter .15s ease, background .2s ease; text-decoration: none;
+  }
+  button:active:not(:disabled), .btn:active { transform: scale(.97); }
+  button:disabled { cursor: not-allowed; filter: grayscale(.4); opacity: .55; }
+  :focus-visible { outline: 3px solid color-mix(in srgb, var(--pri) 55%, transparent); outline-offset: 2px; }
+  .b-pri { background: var(--pri); color: var(--pri-ink); box-shadow: 0 6px 18px color-mix(in srgb, var(--pri) 35%, transparent); }
+  .b-ok  { background: var(--ok); color: #fff; min-height: 64px; font-size: 1.2rem; box-shadow: 0 6px 18px color-mix(in srgb, var(--ok) 35%, transparent); }
+  .b-bad { background: var(--bad-soft); color: var(--bad); }
+  .b-bad-fuerte { background: var(--bad); color: #fff; }
+  .b-suave { background: var(--pri-soft); color: var(--pri-deep); }
+  .b-borde { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  .b-icono { width: 40px; min-height: 40px; padding: 0; border-radius: 12px; background: transparent; color: var(--muted); }
+  .b-icono:hover { background: var(--bg2); }
+  .fila { display: flex; gap: 10px; }
+  .fila > * { flex: 1; }
+  .pila > * + * { margin-top: 10px; }
+
+  /* Formularios */
+  label.t { display: block; font-weight: 700; font-size: .95rem; margin: 18px 0 8px; }
+  input[type=text] {
+    width: 100%; font: inherit; font-weight: 600; color: var(--ink); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; min-height: 50px;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 4px var(--pri-soft); }
+  input::placeholder { color: var(--muted); opacity: .8; }
+
+  /* Fichas (chips) */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    width: auto; min-height: 44px; padding: 8px 16px; border-radius: 999px; font-weight: 700;
+    background: var(--bg); color: var(--ink); border: 1.5px solid var(--line);
+  }
+  .chip[aria-pressed=true] { background: var(--pri); border-color: var(--pri); color: var(--pri-ink); }
+  .chip.demo { border-style: dashed; }
+  .llegada { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--bg); display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .llegada svg { color: var(--pri); }
+
+  /* Portada */
+  .hero { text-align: center; padding: 8px 4px 22px; }
+  .hero h1 { font-size: 1.9rem; line-height: 1.15; font-weight: 900; letter-spacing: -.02em; margin-bottom: 10px; }
+  .hero h1 em { font-style: normal; color: var(--pri); }
+  .hero p { color: var(--muted); font-size: 1.05rem; }
+  .pasos { list-style: none; padding: 0; margin: 0; counter-reset: p; }
+  .pasos li { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; }
+  .pasos li + li { border-top: 1px dashed var(--line); }
+  .pasos .n { width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--pri-soft); color: var(--pri-deep); }
+  .pasos b { display: block; }
+  #entrar { display: flex; justify-content: center; margin-top: 6px; }
+
+  /* Saludo y guía */
+  .saludo { margin: 0 4px 16px; }
+  .saludo h2 { font-size: 1.5rem; }
+  .guia { display: flex; gap: 6px; margin: 0 4px 16px; }
+  .guia span { flex: 1; height: 6px; border-radius: 9px; background: var(--line); }
+  .guia span.si { background: var(--pri); }
+
+  /* Viaje en curso */
+  .viaje { text-align: center; }
+  .viaje.tarde { border-color: var(--bad); background: linear-gradient(var(--bad-soft), var(--card) 70%); }
+  .estado-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: .85rem; background: var(--ok-soft); color: var(--ok); }
+  .estado-pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .estado-pill.bad { background: var(--bad-soft); color: var(--bad); }
+  .anillo { position: relative; width: 220px; height: 220px; margin: 18px auto 14px; }
+  .anillo svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .anillo circle { fill: none; stroke-width: 14; }
+  .anillo .fondo { stroke: var(--line); }
+  .anillo .avance { stroke: var(--ok); stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke .3s; }
+  .anillo .centro { position: absolute; inset: 0; display: grid; place-content: center; }
+  .reloj { font-size: 3.2rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .anillo .sub { font-size: .9rem; color: var(--muted); font-weight: 700; margin-top: 6px; }
+  .viaje .msg { margin: 0 auto 18px; max-width: 30ch; color: var(--muted); font-weight: 600; }
+  .viaje.tarde .msg { color: var(--bad); }
+
+  /* Celebración */
+  .festejo { text-align: center; }
+  .festejo .gran { width: 84px; height: 84px; margin: 6px auto 14px; border-radius: 50%; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok); }
+  .festejo .gran svg { width: 44px; height: 44px; stroke-width: 2.6; }
+  .festejo h2 { font-size: 1.5rem; margin-bottom: 6px; }
+  .festejo p { margin-bottom: 18px; }
+
+  /* Contactos */
+  .cabeza { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .lista { list-style: none; padding: 0; margin: 12px 0 0; }
+  .lista li { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+  .lista li + li { border-top: 1px solid var(--line); }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; flex: none; }
+  .quien { flex: 1; min-width: 0; }
+  .quien b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: .82rem; font-weight: 800; }
+  .badge.ok { color: var(--ok); }
+  .badge.espera { color: var(--warn); }
+  .badge svg { width: 15px; height: 15px; stroke-width: 2.6; }
+  .link-badge { background: none; border: 0; min-height: 0; padding: 0; width: auto; font: inherit; font-size: .82rem; font-weight: 800; color: var(--pri-deep); text-decoration: underline; cursor: pointer; }
+  .vacio { text-align: center; padding: 10px 0 4px; }
+  .vacio .n { width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 18px; display: grid; place-items: center; background: var(--pri-soft); color: var(--pri-deep); }
+
+  /* Ayuda y pie */
+  .sos { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--bad-soft); color: var(--bad); font-weight: 700; text-decoration: none; }
+  .sos small { display: block; font-weight: 600; opacity: .85; }
+  footer { text-align: center; margin-top: 18px; font-size: .85rem; color: var(--muted); }
+
+  /* Hoja inferior (dialog) */
+  dialog {
+    border: 0; padding: 0; width: 100%; max-width: 460px; max-height: 92dvh; margin: auto auto 0;
+    border-radius: 28px 28px 0 0; background: var(--card); color: var(--ink); box-shadow: 0 -10px 40px rgb(0 0 0 / .25);
+  }
+  @media (min-width: 560px) { dialog { margin: auto; border-radius: 28px; } }
+  dialog[open] { animation: subir .28s cubic-bezier(.2, .9, .3, 1.2); }
+  dialog::backdrop { background: rgb(20 8 16 / .45); backdrop-filter: blur(3px); }
+  .hoja { padding: 10px 20px max(22px, env(safe-area-inset-bottom)); }
+  .agarre { width: 44px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 14px; }
+  .hoja h2 { margin-bottom: 6px; }
+  .hoja .cerrar { position: absolute; right: 12px; top: 12px; }
+  .qr { background: #fff; border-radius: 20px; padding: 14px; width: fit-content; margin: 16px auto; border: 1px solid var(--line); }
+  .qr svg { display: block; width: 190px; height: 190px; }
+  .pasito { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; margin-top: 8px; }
+  .pasito .n { width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: .8rem; font-weight: 900; background: var(--pri-soft); color: var(--pri-deep); }
+  .icono-grande { width: 64px; height: 64px; margin: 4px auto 12px; border-radius: 22px; display: grid; place-items: center; }
+  .icono-grande svg { width: 34px; height: 34px; }
+
+  /* Aviso flotante */
+  #toast {
+    position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0;
+    background: var(--ink); color: var(--bg); font-weight: 700; padding: 12px 18px; border-radius: 16px;
+    max-width: calc(100vw - 32px); width: max-content; box-shadow: var(--shadow); transition: .25s ease; pointer-events: none; z-index: 10;
+  }
+  #toast.ver { opacity: 1; transform: translate(-50%, 0); }
+
+  @keyframes subir { from { transform: translateY(40px); opacity: 0; } }
+  @keyframes latido { 50% { transform: scale(1.04); } }
+  .viaje.tarde .anillo { animation: latido 1.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<!-- Íconos -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
+  <symbol id="i-escuela" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></symbol>
+  <symbol id="i-maleta" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-persona-mas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-espera" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/><path d="M12 16h.01"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-compartir" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+  <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-basura" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+  <symbol id="i-sos" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5h.01"/></symbol>
+  <symbol id="i-camina" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M7 12l3-5 4 2 3 3"/><path d="m11 15-1-5"/></symbol>
+  <symbol id="i-corazon" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.2 12 20 12 20z"/></symbol>
+</svg>
+
 <main>
   <header>
-    <h1>Avisa<span>me</span> 💗</h1>
+    <div class="logo">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4C20 4 11 13 11 25c0 15 21 33 21 33s21-18 21-33C53 13 44 4 32 4z" fill="var(--pri)"/><path d="M32 35s-9-5.5-9-11.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3C41 29.5 32 35 32 35z" fill="var(--card)"/></svg>
+      <span>Avisa<b>me</b></span>
+    </div>
     <div id="boton-usuaria"></div>
   </header>
 
@@ -59,63 +243,154 @@
     <p class="muted">Llena <code>config.js</code> con las claves de Clerk, Supabase y el bot de Telegram (README, paso 7).</p>
   </section>
 
-  <!-- Sin sesión -->
+  <!-- ===== Sin sesión ===== -->
   <section id="v-fuera" class="oculto">
+    <div class="hero">
+      <h1>“Avisame cuando llegues”,<br><em>pero de verdad.</em></h1>
+      <p>Si no confirmas que llegaste, avisamos a quienes te cuidan.</p>
+    </div>
     <div class="card">
-      <h2>¿Cuántas veces dijiste “avisame cuando llegues”… y se olvidaron?</h2>
-      <p class="muted">Marca cuándo sales. Si no confirmas que llegaste a tiempo, tus contactos de confianza reciben un aviso por Telegram con tu ubicación.</p>
+      <ol class="pasos">
+        <li><span class="n"><svg class="i"><use href="#i-persona-mas"/></svg></span>
+          <span><b>Agrega a quien te cuida</b><span class="muted small">Tu mamá, tu amiga… reciben los avisos por Telegram.</span></span></li>
+        <li><span class="n"><svg class="i"><use href="#i-reloj"/></svg></span>
+          <span><b>Dinos cuándo sales</b><span class="muted small">Eliges a dónde vas y en cuánto llegas.</span></span></li>
+        <li><span class="n"><svg class="i"><use href="#i-escudo"/></svg></span>
+          <span><b>Si no llegas, les avisamos</b><span class="muted small">Con tu última ubicación. Si llegas, aprietas un botón y listo.</span></span></li>
+      </ol>
     </div>
     <div id="entrar"></div>
   </section>
 
-  <!-- Con sesión -->
+  <!-- ===== Con sesión ===== -->
   <section id="v-dentro" class="oculto">
+    <div class="saludo">
+      <h2 id="saludo">Hola 👋</h2>
+      <p id="saludo-sub" class="muted"></p>
+    </div>
+    <div class="guia" id="guia" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <!-- Festejo al llegar -->
+    <div id="c-festejo" class="card festejo oculto" role="status">
+      <div class="gran"><svg class="i"><use href="#i-check"/></svg></div>
+      <h2>¡Llegaste bien!</h2>
+      <p class="muted" id="festejo-txt">Ya les avisamos a tus contactos.</p>
+      <button class="b-suave" id="b-festejo">Listo</button>
+    </div>
+
     <!-- Viaje en curso -->
-    <div id="c-viaje" class="card oculto">
-      <h2 id="v-destino"></h2>
-      <div id="v-reloj" class="reloj">--:--</div>
-      <p id="v-estado" class="estado muted"></p>
-      <button id="b-llegue" class="verde">Llegué ✅</button>
-      <button id="b-panico" class="rojo">🆘 Pánico: avisar ya</button>
+    <div id="c-viaje" class="card viaje oculto">
+      <span id="v-pill" class="estado-pill"><svg class="i" style="width:16px;height:16px"><use href="#i-escudo"/></svg><span>En camino</span></span>
+      <h2 id="v-destino" style="margin-top:10px"></h2>
+      <div class="anillo">
+        <svg viewBox="0 0 140 140" aria-hidden="true">
+          <circle class="fondo" cx="70" cy="70" r="60"/>
+          <circle class="avance" id="v-anillo" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="0"/>
+        </svg>
+        <div class="centro">
+          <div id="v-reloj" class="reloj">--:--</div>
+          <div id="v-sub" class="sub"></div>
+        </div>
+      </div>
+      <p id="v-msg" class="msg" aria-live="polite"></p>
+      <div class="pila">
+        <button id="b-llegue" class="b-ok"><svg class="i"><use href="#i-check"/></svg><span>Llegué bien</span></button>
+        <button id="b-panico" class="b-bad"><svg class="i"><use href="#i-sos"/></svg>Necesito ayuda ahora</button>
+      </div>
     </div>
 
     <!-- Nuevo viaje -->
     <div id="c-salgo" class="card oculto">
-      <h2>¿A dónde vas?</h2>
-      <label for="f-destino">Destino</label>
-      <input id="f-destino" placeholder="Casa" value="Casa" maxlength="60">
-      <label for="f-min">Llego en…</label>
-      <select id="f-min">
-        <option value="1">1 minuto (demo)</option>
-        <option value="10">10 minutos</option>
-        <option value="20" selected>20 minutos</option>
-        <option value="30">30 minutos</option>
-        <option value="45">45 minutos</option>
-        <option value="60">1 hora</option>
-        <option value="90">1 hora y media</option>
-      </select>
-      <p id="sin-contactos" class="muted oculto">⚠️ Primero agrega al menos un contacto y pídele que abra el link.</p>
-      <button id="b-salgo">Salgo 🚶‍♀️</button>
+      <h2>¿Vas a salir?</h2>
+      <p class="muted">Avisaremos a tus contactos cuando salgas y cuando llegues.</p>
+
+      <label class="t" id="l-destino">¿A dónde vas?</label>
+      <div class="chips" role="group" aria-labelledby="l-destino" id="chips-destino">
+        <button class="chip" data-v="Casa" aria-pressed="true"><svg class="i" style="width:18px;height:18px"><use href="#i-casa"/></svg>Casa</button>
+        <button class="chip" data-v="la U"><svg class="i" style="width:18px;height:18px"><use href="#i-escuela"/></svg>La U</button>
+        <button class="chip" data-v="el trabajo"><svg class="i" style="width:18px;height:18px"><use href="#i-maleta"/></svg>Trabajo</button>
+        <button class="chip" data-v="">Otro…</button>
+      </div>
+      <input type="text" id="f-destino" class="oculto" placeholder="Ej: casa de Sofi" maxlength="60" style="margin-top:10px" aria-label="Otro destino">
+
+      <label class="t" id="l-min">¿En cuánto llegas?</label>
+      <div class="chips" role="group" aria-labelledby="l-min" id="chips-min">
+        <button class="chip" data-v="10">10 min</button>
+        <button class="chip" data-v="20" aria-pressed="true">20 min</button>
+        <button class="chip" data-v="30">30 min</button>
+        <button class="chip" data-v="45">45 min</button>
+        <button class="chip" data-v="60">1 hora</button>
+        <button class="chip demo" data-v="1" title="Para probar">1 min (prueba)</button>
+      </div>
+      <div class="llegada"><svg class="i"><use href="#i-reloj"/></svg><span id="txt-llegada"></span></div>
+
+      <p id="sin-contactos" class="small muted oculto" style="margin-top:14px;display:flex;gap:8px;align-items:center">
+        <svg class="i" style="color:var(--warn)"><use href="#i-alerta"/></svg>Primero conecta a alguien de confianza (abajo).
+      </p>
+      <button id="b-salgo" class="b-pri" style="margin-top:16px"><svg class="i"><use href="#i-camina"/></svg>Ya salgo</button>
     </div>
 
     <!-- Contactos -->
-    <div class="card">
-      <h2>Contactos de confianza</h2>
-      <ul id="lista-contactos"></ul>
-      <label for="f-contacto">Nombre</label>
-      <input id="f-contacto" placeholder="Mamá, Sofi…" maxlength="40">
-      <button id="b-contacto" class="suave">+ Agregar contacto</button>
-      <div id="c-invitar" class="oculto">
-        <p class="muted">Que <b id="inv-nombre"></b> escanee esto o abra el link y aprete <b>Iniciar</b> en Telegram:</p>
-        <div id="inv-qr" class="qr"></div>
-        <p class="link"><a id="inv-link" target="_blank" rel="noopener"></a></p>
-        <button id="b-copiar" class="suave">Copiar link</button>
+    <div class="card" id="c-contactos">
+      <div class="cabeza">
+        <h2>Quienes te cuidan</h2>
+        <span id="n-contactos" class="muted small"></span>
       </div>
+      <p class="muted small" id="contactos-ayuda">Reciben tus avisos por Telegram.</p>
+      <ul class="lista" id="lista-contactos"></ul>
+      <button id="b-agregar" class="b-suave" style="margin-top:14px"><svg class="i"><use href="#i-persona-mas"/></svg>Agregar a alguien</button>
     </div>
-    <p class="muted">Prototipo hecho en Nodo Cero. No reemplaza a la policía: en emergencia llama al 110.</p>
+
+    <a class="sos" href="tel:110">
+      <svg class="i"><use href="#i-tel"/></svg>
+      <span>¿Emergencia? Llama al 110<small>Avisame es una ayuda, no reemplaza a la policía.</small></span>
+    </a>
+    <footer>Hecho con <svg class="i" style="width:14px;height:14px;vertical-align:-2px;fill:var(--pri);stroke:none"><use href="#i-corazon"/></svg> en Nodo Cero · Santa Cruz</footer>
   </section>
 </main>
-<div id="toast" class="oculto"></div>
+
+<!-- Hoja: agregar contacto -->
+<dialog id="d-agregar" aria-labelledby="t-agregar">
+  <div class="hoja">
+    <div class="agarre"></div>
+    <button class="b-icono cerrar" data-cerrar aria-label="Cerrar"><svg class="i"><use href="#i-x"/></svg></button>
+    <div id="paso-nombre">
+      <div class="icono-grande" style="background:var(--pri-soft);color:var(--pri-deep)"><svg class="i"><use href="#i-persona-mas"/></svg></div>
+      <h2 id="t-agregar" style="text-align:center">¿A quién agregamos?</h2>
+      <p class="muted" style="text-align:center">Alguien que quieras que sepa si llegaste.</p>
+      <label class="t" for="f-contacto">Su nombre</label>
+      <input type="text" id="f-contacto" placeholder="Ej: Mamá, Sofi" maxlength="40" autocomplete="off">
+      <button id="b-contacto" class="b-pri" style="margin-top:16px">Continuar</button>
+    </div>
+    <div id="paso-qr" class="oculto">
+      <h2 style="text-align:center">Ahora, <span id="inv-nombre"></span></h2>
+      <p class="muted" style="text-align:center">tiene que abrir este link <b>una sola vez</b>.</p>
+      <div id="inv-qr" class="qr" aria-label="Código QR del link"></div>
+      <div class="pasito"><span class="n">1</span><span>Que escanee el código, o mándale el link.</span></div>
+      <div class="pasito"><span class="n">2</span><span>En Telegram aprieta <b>Iniciar</b>. ¡Listo!</span></div>
+      <div class="fila" style="margin-top:18px">
+        <button id="b-compartir" class="b-pri"><svg class="i"><use href="#i-compartir"/></svg>Mandar link</button>
+        <button id="b-copiar" class="b-borde"><svg class="i"><use href="#i-copiar"/></svg>Copiar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Hoja: confirmar -->
+<dialog id="d-confirmar" aria-labelledby="t-confirmar">
+  <div class="hoja" style="text-align:center">
+    <div class="agarre"></div>
+    <div class="icono-grande" id="c-icono"></div>
+    <h2 id="t-confirmar"></h2>
+    <p class="muted" id="c-texto" style="margin-bottom:18px"></p>
+    <div class="pila">
+      <button id="c-si"></button>
+      <button class="b-borde" data-cerrar>Cancelar</button>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -124,12 +399,29 @@
 const C = window.CONFIG || {};
 const $ = id => document.getElementById(id);
 const ver = (id, si) => $(id).classList.toggle('oculto', !si);
-let db, invitado = null, viaje = null, contactos = [], relojTimer = null, ultimaUbic = 0;
+const hora = d => new Date(d).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+let db, viaje = null, contactos = [], relojTimer = null, ultimaUbic = 0, invitado = null, festejo = null;
+let destino = 'Casa', minutos = 20;
 
-function toast(t) { $('toast').textContent = t; ver('toast', true); clearTimeout(toast.t); toast.t = setTimeout(() => ver('toast', false), 3500); }
-function falla(e) { console.error(e); toast('Error: ' + (e.message || e)); }
+function toast(t) {
+  const el = $('toast'); el.textContent = t; el.classList.add('ver');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('ver'), 3200);
+}
+function falla(e) { console.error(e); toast('Algo falló: ' + (e.message || e)); }
 
 // ---------- Arranque ----------
+const tema = () => getComputedStyle(document.documentElement);
+const aparienciaClerk = () => ({
+  variables: {
+    colorPrimary: tema().getPropertyValue('--pri').trim(),
+    colorText: tema().getPropertyValue('--ink').trim(),
+    colorBackground: tema().getPropertyValue('--card').trim(),
+    colorInputBackground: tema().getPropertyValue('--bg').trim(),
+    colorInputText: tema().getPropertyValue('--ink').trim(),
+    fontFamily: 'Nunito, system-ui, sans-serif', borderRadius: '14px',
+  },
+});
+
 if (!C.CLERK_PUBLISHABLE_KEY || C.CLERK_PUBLISHABLE_KEY.includes('PEGAR')) {
   ver('v-config', true);
 } else {
@@ -138,12 +430,12 @@ if (!C.CLERK_PUBLISHABLE_KEY || C.CLERK_PUBLISHABLE_KEY.includes('PEGAR')) {
   s.crossOrigin = 'anonymous';
   s.dataset.clerkPublishableKey = C.CLERK_PUBLISHABLE_KEY;
   s.onload = iniciar;
-  s.onerror = () => toast('No se pudo cargar Clerk. ¿Hay internet?');
+  s.onerror = () => toast('No se pudo cargar. ¿Hay internet?');
   document.head.appendChild(s);
 }
 
 async function iniciar() {
-  await Clerk.load({ localization: { locale: 'es-ES' } });
+  await Clerk.load({ appearance: aparienciaClerk() });
   // Supabase recibe el token de Clerk: así las reglas (RLS) saben quién es.
   db = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, {
     accessToken: async () => (await Clerk.session?.getToken()) ?? null,
@@ -159,18 +451,19 @@ function mostrar(user) {
   dentro = ahora;
   ver('v-fuera', !ahora); ver('v-dentro', ahora);
   if (ahora) {
-    Clerk.mountUserButton($('boton-usuaria'));
+    Clerk.mountUserButton($('boton-usuaria'), { appearance: aparienciaClerk() });
+    $('saludo').textContent = `Hola, ${miNombre()} 👋`;
     cargar();
     clearInterval(mostrar.t); mostrar.t = setInterval(cargar, 15000);
   } else {
-    clearInterval(mostrar.t);
-    Clerk.mountSignIn($('entrar'));
+    clearInterval(mostrar.t); $('boton-usuaria').innerHTML = '';
+    Clerk.mountSignIn($('entrar'), { appearance: aparienciaClerk() });
   }
 }
 
 function miNombre() {
   const u = Clerk.user;
-  return u.firstName || u.username || (u.primaryEmailAddress?.emailAddress || 'Tu amiga').split('@')[0];
+  return u.firstName || u.username || (u.primaryEmailAddress?.emailAddress || 'amiga').split('@')[0];
 }
 
 // ---------- Datos ----------
@@ -187,52 +480,109 @@ async function cargar() {
   } catch (e) { falla(e); }
 }
 
+const conectados = () => contactos.filter(k => k.telegram_chat_id);
+const TONOS = [['#fde6ee', '#c22d62'], ['#ffe9d6', '#b4560a'], ['#ece6ff', '#6141c9'], ['#dcf4e8', '#13794f'], ['#dff0ff', '#1f68b0']];
+function tono(nombre) { let h = 0; for (const ch of nombre) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return TONOS[h % TONOS.length]; }
+const iniciales = n => n.trim().split(/\s+/).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+
 function pintar() {
+  const nCon = conectados().length;
+
+  // Guía de pasos (1 contacto · 2 salir · 3 llegar)
+  const paso = viaje ? 3 : nCon ? 2 : 1;
+  [...$('guia').children].forEach((s, i) => s.classList.toggle('si', i < paso));
+  $('saludo-sub').textContent = viaje ? 'Estamos pendientes de tu viaje.'
+    : nCon ? '¿Sales a algún lado? Avísanos.' : 'Empecemos: agrega a alguien de confianza.';
+
   // Contactos
   const ul = $('lista-contactos'); ul.innerHTML = '';
   for (const k of contactos) {
     const li = document.createElement('li');
-    const n = document.createElement('span'); n.textContent = k.nombre;
-    const st = document.createElement('span');
-    st.className = k.telegram_chat_id ? 'ok' : 'espera';
-    st.textContent = k.telegram_chat_id ? '✅ conectado' : '⏳ falta abrir link';
-    if (!k.telegram_chat_id) { st.style.cursor = 'pointer'; st.onclick = () => invitar(k); }
-    const x = document.createElement('button'); x.className = 'x'; x.textContent = '✕'; x.title = 'Quitar';
-    x.onclick = () => quitarContacto(k);
-    const der = document.createElement('span'); der.append(st, x);
-    li.append(n, der); ul.append(li);
+    const [bg, fg] = tono(k.nombre);
+    const av = document.createElement('span'); av.className = 'avatar';
+    av.style.background = bg; av.style.color = fg; av.textContent = iniciales(k.nombre);
+    const q = document.createElement('div'); q.className = 'quien';
+    const b = document.createElement('b'); b.textContent = k.nombre;
+    q.append(b);
+    if (k.telegram_chat_id) {
+      q.insertAdjacentHTML('beforeend', '<span class="badge ok"><svg class="i"><use href="#i-check"/></svg>Conectada</span>');
+    } else {
+      q.insertAdjacentHTML('beforeend', '<span class="badge espera"><svg class="i"><use href="#i-espera"/></svg>Falta que abra el link · </span>');
+      const re = document.createElement('button'); re.className = 'link-badge'; re.textContent = 'ver link';
+      re.onclick = () => abrirAgregar(k); q.lastChild.append(re);
+    }
+    const x = document.createElement('button'); x.className = 'b-icono'; x.setAttribute('aria-label', 'Quitar a ' + k.nombre);
+    x.innerHTML = '<svg class="i"><use href="#i-basura"/></svg>'; x.onclick = () => quitarContacto(k);
+    li.append(av, q, x); ul.append(li);
   }
-  if (!contactos.length) ul.innerHTML = '<li class="muted">Todavía no hay contactos.</li>';
+  if (!contactos.length) {
+    ul.innerHTML = `<li class="vacio" style="display:block"><div class="n"><svg class="i"><use href="#i-persona-mas"/></svg></div>
+      <b>Todavía no agregaste a nadie</b><p class="muted small">Agrega al menos una persona para poder salir.</p></li>`;
+  }
+  $('n-contactos').textContent = contactos.length ? `${nCon} de ${contactos.length} conectadas` : '';
+  $('b-agregar').className = contactos.length ? 'b-suave' : 'b-pri';
+
+  // Si el contacto invitado ya abrió el link, cerramos la hoja y festejamos.
   const inv = contactos.find(k => k.id === invitado);
-  if (!inv || inv.telegram_chat_id) { ver('c-invitar', false); if (inv) toast('✅ ' + inv.nombre + ' ya está conectada'); invitado = null; }
-  const conectados = contactos.some(k => k.telegram_chat_id);
-  ver('sin-contactos', !conectados);
-  $('b-salgo').disabled = !conectados;
+  if (inv?.telegram_chat_id) { $('d-agregar').close(); toast(`✅ ${inv.nombre} ya está conectada`); invitado = null; }
+
+  // Salir
+  ver('sin-contactos', !nCon);
+  $('b-salgo').disabled = !nCon;
+  $('c-salgo').classList.toggle('bloqueada', !nCon);
+
+  // Orden: si falta contacto, la tarjeta de contactos va primero
+  const cont = $('c-contactos'), salgo = $('c-salgo');
+  if (!nCon && cont.nextElementSibling !== salgo) salgo.before(cont);
+  if (nCon && salgo.nextElementSibling !== cont) salgo.after(cont);
 
   // Viaje
-  ver('c-viaje', !!viaje); ver('c-salgo', !viaje);
+  ver('c-festejo', !!festejo && !viaje);
+  ver('c-viaje', !!viaje); ver('c-salgo', !viaje && !festejo);
   clearInterval(relojTimer);
   if (viaje) {
     $('v-destino').textContent = 'Camino a ' + viaje.destino;
-    $('c-viaje').classList.toggle('aviso', viaje.estado !== 'en_camino');
-    $('b-llegue').textContent = viaje.estado === 'en_camino' ? 'Llegué ✅' : 'Estoy bien, ya llegué ✅';
-    ver('b-panico', viaje.estado === 'en_camino');
     tic(); relojTimer = setInterval(tic, 1000);
   }
+  actualizarLlegada();
 }
 
 function tic() {
+  const total = Math.max(60, (new Date(viaje.limite) - new Date(viaje.creado)) / 1000);
   const falta = Math.round((new Date(viaje.limite) - Date.now()) / 1000);
   const a = Math.abs(falta), m = Math.floor(a / 60), s = String(a % 60).padStart(2, '0');
-  $('v-reloj').textContent = (falta < 0 ? '+' : '') + m + ':' + s;
-  $('v-reloj').classList.toggle('tarde', falta < 0);
-  $('v-estado').textContent =
-    viaje.estado === 'alerta' ? '⚠️ No confirmaste a tiempo: avisamos a tus contactos.' :
-    viaje.estado === 'panico' ? '🆘 Avisamos a tus contactos.' :
-    falta < 0 ? 'Se acabó el tiempo… avisando a tus contactos.' :
-    'Si no aprietas “Llegué”, avisamos a tus contactos.';
+  const tarde = falta < 0, avisado = viaje.estado !== 'en_camino';
+  const frac = Math.max(0, Math.min(1, falta / total));
+
+  $('v-reloj').textContent = (tarde ? '+' : '') + m + ':' + s;
+  $('v-sub').textContent = tarde ? 'de retraso' : 'llegas a las ' + hora(viaje.limite);
+  const anillo = $('v-anillo');
+  anillo.style.strokeDashoffset = String(376.99 * (1 - frac));
+  anillo.style.stroke = tarde || avisado ? 'var(--bad)' : frac < .25 ? 'var(--warn)' : 'var(--ok)';
+  $('c-viaje').classList.toggle('tarde', tarde || avisado);
+
+  const pill = $('v-pill');
+  pill.className = 'estado-pill' + (avisado || tarde ? ' bad' : frac < .25 ? ' warn' : '');
+  pill.lastElementChild.textContent =
+    viaje.estado === 'panico' ? 'Pediste ayuda' : avisado ? 'Avisamos a tus contactos' :
+    tarde ? 'Se acabó el tiempo' : frac < .25 ? 'Ya casi' : 'En camino';
+
+  const n = conectados().length, quienes = n === 1 ? conectados()[0].nombre : `tus ${n} contactos`;
+  $('v-msg').textContent =
+    viaje.estado === 'panico' ? `Le mandamos tu ubicación a ${quienes}. Si puedes, llama al 110.` :
+    avisado ? `No confirmaste a tiempo. Le avisamos a ${quienes} con tu ubicación.` :
+    tarde ? `Si no confirmas ya, le avisamos a ${quienes}.` :
+    `Cuando llegues, aprieta el botón verde. Si no, le avisamos a ${quienes}.`;
+  $('b-llegue').lastElementChild.textContent = avisado || tarde ? 'Estoy bien, ya llegué' : 'Llegué bien';
+  ver('b-panico', viaje.estado === 'en_camino');
+
   if (viaje.estado === 'en_camino' && Date.now() - ultimaUbic > 120000) actualizarUbicacion();
 }
+
+function actualizarLlegada() {
+  $('txt-llegada').textContent = `Si no confirmas antes de las ${hora(Date.now() + minutos * 60000)}, avisamos.`;
+}
+setInterval(actualizarLlegada, 30000);
 
 function ubicacion() {
   return new Promise(ok => {
@@ -249,66 +599,134 @@ async function actualizarUbicacion() {
   if (u && viaje) await db.from('viajes').update(u).eq('id', viaje.id);
 }
 
+// ---------- Fichas ----------
+function grupoFichas(id, alElegir) {
+  const g = $(id);
+  g.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    g.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    alElegir(b.dataset.v);
+  });
+}
+grupoFichas('chips-destino', v => {
+  ver('f-destino', v === '');
+  if (v === '') { $('f-destino').focus(); destino = ''; } else destino = v;
+});
+grupoFichas('chips-min', v => { minutos = Number(v); actualizarLlegada(); });
+
+// ---------- Hojas ----------
+document.querySelectorAll('dialog').forEach(d => {
+  d.addEventListener('click', e => { if (e.target === d || e.target.closest('[data-cerrar]')) d.close(); });
+});
+
+function confirmar({ icono, color, titulo, texto, si, clase }) {
+  return new Promise(ok => {
+    const d = $('d-confirmar');
+    $('c-icono').style.background = `var(--${color}-soft)`; $('c-icono').style.color = `var(--${color})`;
+    $('c-icono').innerHTML = `<svg class="i"><use href="#i-${icono}"/></svg>`;
+    $('t-confirmar').textContent = titulo; $('c-texto').textContent = texto;
+    $('c-si').textContent = si; $('c-si').className = clase;
+    $('c-si').onclick = () => { d.close(); ok(true); };
+    d.onclose = () => ok(false);
+    d.showModal();
+  });
+}
+
 // ---------- Acciones ----------
 $('b-salgo').onclick = async () => {
-  const destino = $('f-destino').value.trim() || 'Casa';
-  const min = Number($('f-min').value);
-  $('b-salgo').disabled = true;
+  const dest = destino || $('f-destino').value.trim();
+  if (!dest) { $('f-destino').focus(); return toast('Escribe a dónde vas'); }
+  const btn = $('b-salgo'); btn.disabled = true; btn.lastChild.textContent = 'Un segundo…';
   try {
     const u = await ubicacion();
     const { error } = await db.from('viajes').insert({
-      nombre: miNombre(), destino,
-      limite: new Date(Date.now() + min * 60000).toISOString(),
+      nombre: miNombre(), destino: dest,
+      limite: new Date(Date.now() + minutos * 60000).toISOString(),
       lat: u?.lat ?? null, lng: u?.lng ?? null,
     });
     if (error) throw error;
-    ultimaUbic = Date.now();
-    toast(u ? 'Buen viaje 💗 Avisamos a tus contactos.' : 'Buen viaje 💗 (sin ubicación: activa el GPS)');
+    ultimaUbic = Date.now(); festejo = null;
+    toast(u ? 'Buen viaje 💗 Ya les avisamos que saliste.' : 'Buen viaje 💗 Activa la ubicación para más seguridad.');
     await cargar();
-  } catch (e) { falla(e); $('b-salgo').disabled = false; }
-};
-
-async function cambiarEstado(estado, msg) {
-  try {
-    const { error } = await db.from('viajes').update({ estado }).eq('id', viaje.id);
-    if (error) throw error;
-    toast(msg); await cargar();
   } catch (e) { falla(e); }
-}
-$('b-llegue').onclick = () => cambiarEstado('llego', '¡Qué bueno que llegaste! 💗');
-$('b-panico').onclick = () => {
-  if (confirm('¿Avisar YA a todos tus contactos con tu ubicación?')) {
-    actualizarUbicacion().finally(() => cambiarEstado('panico', 'Aviso enviado. Si puedes, llama al 110.'));
-  }
+  btn.disabled = false; btn.lastChild.textContent = 'Ya salgo';
 };
 
+async function cambiarEstado(estado) {
+  const { error } = await db.from('viajes').update({ estado }).eq('id', viaje.id);
+  if (error) throw error;
+}
+
+$('b-llegue').onclick = async () => {
+  try {
+    const n = conectados().length;
+    await cambiarEstado('llego');
+    festejo = true;
+    $('festejo-txt').textContent = n === 1 ? `Ya le avisamos a ${conectados()[0].nombre}.` : 'Ya les avisamos a tus contactos.';
+    await cargar();
+  } catch (e) { falla(e); }
+};
+$('b-festejo').onclick = () => { festejo = null; pintar(); };
+
+$('b-panico').onclick = async () => {
+  const n = conectados().length;
+  const ok = await confirmar({
+    icono: 'sos', color: 'bad', titulo: '¿Avisar ahora?',
+    texto: `Le mandamos tu ubicación a ${n === 1 ? conectados()[0].nombre : `tus ${n} contactos`} en este momento.`,
+    si: 'Sí, avisar ya', clase: 'b-bad-fuerte',
+  });
+  if (!ok) return;
+  try { await actualizarUbicacion(); await cambiarEstado('panico'); toast('Aviso enviado. Si puedes, llama al 110.'); await cargar(); }
+  catch (e) { falla(e); }
+};
+
+$('b-agregar').onclick = () => abrirAgregar();
+
+function abrirAgregar(k) {
+  ver('paso-nombre', !k); ver('paso-qr', !!k);
+  if (k) mostrarQR(k); else $('f-contacto').value = '';
+  $('d-agregar').showModal();
+  if (!k) setTimeout(() => $('f-contacto').focus(), 50);
+}
+
+$('f-contacto').addEventListener('keydown', e => { if (e.key === 'Enter') $('b-contacto').click(); });
 $('b-contacto').onclick = async () => {
   const nombre = $('f-contacto').value.trim();
-  if (!nombre) return toast('Escribe un nombre');
+  if (!nombre) { $('f-contacto').focus(); return toast('Escribe su nombre'); }
+  $('b-contacto').disabled = true;
   try {
     const { data, error } = await db.from('contactos').insert({ nombre }).select().single();
     if (error) throw error;
-    $('f-contacto').value = '';
-    await cargar(); invitar(data);
+    ver('paso-nombre', false); ver('paso-qr', true); mostrarQR(data);
+    await cargar();
   } catch (e) { falla(e); }
+  $('b-contacto').disabled = false;
 };
 
-async function quitarContacto(k) {
-  if (!confirm('¿Quitar a ' + k.nombre + '?')) return;
-  const { error } = await db.from('contactos').delete().eq('id', k.id);
-  if (error) return falla(error);
-  ver('c-invitar', false); cargar();
+function mostrarQR(k) {
+  invitado = k.id;
+  const url = `https://t.me/${C.TELEGRAM_BOT}?start=${k.codigo}`;
+  $('inv-nombre').textContent = k.nombre;
+  const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+  $('inv-qr').innerHTML = qr.createSvgTag({ cellSize: 5, margin: 0, scalable: true });
+  const texto = `¡Hola ${k.nombre}! Te agregué como contacto de confianza en Avisame 💗 Si un día no llego a tiempo, te aviso por aquí. Abre este link y aprieta "Iniciar":`;
+  $('b-compartir').onclick = async () => {
+    if (navigator.share) { try { await navigator.share({ text: texto, url }); } catch {} }
+    else window.open('https://wa.me/?text=' + encodeURIComponent(texto + ' ' + url), '_blank', 'noopener');
+  };
+  $('b-copiar').onclick = () => navigator.clipboard.writeText(url).then(() => toast('Link copiado'));
 }
 
-function invitar(k) {
-  const url = `https://t.me/${C.TELEGRAM_BOT}?start=${k.codigo}`;
-  invitado = k.id;
-  $('inv-nombre').textContent = k.nombre;
-  $('inv-link').href = url; $('inv-link').textContent = url;
-  const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
-  $('inv-qr').innerHTML = qr.createSvgTag(5, 0);
-  ver('c-invitar', true);
-  $('b-copiar').onclick = () => navigator.clipboard.writeText(url).then(() => toast('Link copiado'));
+async function quitarContacto(k) {
+  const ok = await confirmar({
+    icono: 'basura', color: 'bad', titulo: `¿Quitar a ${k.nombre}?`,
+    texto: 'Ya no recibirá tus avisos. Puedes volver a agregarla cuando quieras.',
+    si: 'Quitar', clase: 'b-bad-fuerte',
+  });
+  if (!ok) return;
+  const { error } = await db.from('contactos').delete().eq('id', k.id);
+  if (error) return falla(error);
+  cargar();
 }
 </script>
 </body>
