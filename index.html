@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Llegué Bien</title>
+<meta name="theme-color" content="#1a1220">
+<style>
+  :root {
+    --bg: #1a1220; --card: #261a2e; --line: #3a2a45; --text: #f6eef8; --muted: #b9a8c2;
+    --pink: #ff6fae; --pink2: #ff9ccb; --green: #4ade80; --red: #ff4d5e; --amber: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 48px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 1.4rem; margin: 0; } h1 span { color: var(--pink); }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+  .muted { color: var(--muted); font-size: .92rem; }
+  label { display: block; font-size: .9rem; color: var(--muted); margin: 10px 0 4px; }
+  input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+                  background: #1d1424; color: var(--text); font-size: 1rem; }
+  button { width: 100%; padding: 14px; border: 0; border-radius: 12px; font-size: 1.05rem; font-weight: 700;
+           cursor: pointer; margin-top: 12px; color: #1a1220; background: var(--pink); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.verde { background: var(--green); font-size: 1.3rem; padding: 20px; }
+  button.rojo { background: var(--red); color: #fff; }
+  button.suave { background: transparent; color: var(--pink2); border: 1px solid var(--line); font-weight: 600; }
+  .reloj { font-size: 3rem; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; margin: 8px 0; }
+  .reloj.tarde { color: var(--red); }
+  .estado { text-align: center; font-weight: 700; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+       padding: 10px 0; border-bottom: 1px solid var(--line); }
+  li:last-child { border-bottom: 0; }
+  .ok { color: var(--green); } .espera { color: var(--amber); }
+  .x { width: auto; margin: 0; padding: 4px 10px; background: transparent; color: var(--muted); font-size: .9rem; }
+  .qr { background: #fff; border-radius: 12px; padding: 12px; width: fit-content; margin: 12px auto; }
+  .qr svg { display: block; }
+  .link { word-break: break-all; font-size: .85rem; }
+  .aviso { background: #3b1520; border-color: var(--red); }
+  .oculto { display: none !important; }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #000c;
+           padding: 10px 16px; border-radius: 10px; font-size: .95rem; max-width: 90vw; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Llegué <span>Bien</span> 💗</h1>
+    <div id="boton-usuaria"></div>
+  </header>
+
+  <!-- Falta configurar -->
+  <section id="v-config" class="card oculto">
+    <h2>Falta configurar</h2>
+    <p class="muted">Llena <code>config.js</code> con las claves de Clerk, Supabase y el bot de Telegram (README, paso 7).</p>
+  </section>
+
+  <!-- Sin sesión -->
+  <section id="v-fuera" class="oculto">
+    <div class="card">
+      <h2>¿Cuántas veces dijiste “avisame cuando llegues”… y se olvidaron?</h2>
+      <p class="muted">Marca cuándo sales. Si no confirmas que llegaste a tiempo, tus contactos de confianza reciben un aviso por Telegram con tu ubicación.</p>
+    </div>
+    <div id="entrar"></div>
+  </section>
+
+  <!-- Con sesión -->
+  <section id="v-dentro" class="oculto">
+    <!-- Viaje en curso -->
+    <div id="c-viaje" class="card oculto">
+      <h2 id="v-destino"></h2>
+      <div id="v-reloj" class="reloj">--:--</div>
+      <p id="v-estado" class="estado muted"></p>
+      <button id="b-llegue" class="verde">Llegué ✅</button>
+      <button id="b-panico" class="rojo">🆘 Pánico: avisar ya</button>
+    </div>
+
+    <!-- Nuevo viaje -->
+    <div id="c-salgo" class="card oculto">
+      <h2>¿A dónde vas?</h2>
+      <label for="f-destino">Destino</label>
+      <input id="f-destino" placeholder="Casa" value="Casa" maxlength="60">
+      <label for="f-min">Llego en…</label>
+      <select id="f-min">
+        <option value="1">1 minuto (demo)</option>
+        <option value="10">10 minutos</option>
+        <option value="20" selected>20 minutos</option>
+        <option value="30">30 minutos</option>
+        <option value="45">45 minutos</option>
+        <option value="60">1 hora</option>
+        <option value="90">1 hora y media</option>
+      </select>
+      <p id="sin-contactos" class="muted oculto">⚠️ Primero agrega al menos un contacto y pídele que abra el link.</p>
+      <button id="b-salgo">Salgo 🚶‍♀️</button>
+    </div>
+
+    <!-- Contactos -->
+    <div class="card">
+      <h2>Contactos de confianza</h2>
+      <ul id="lista-contactos"></ul>
+      <label for="f-contacto">Nombre</label>
+      <input id="f-contacto" placeholder="Mamá, Sofi…" maxlength="40">
+      <button id="b-contacto" class="suave">+ Agregar contacto</button>
+      <div id="c-invitar" class="oculto">
+        <p class="muted">Que <b id="inv-nombre"></b> escanee esto o abra el link y aprete <b>Iniciar</b> en Telegram:</p>
+        <div id="inv-qr" class="qr"></div>
+        <p class="link"><a id="inv-link" target="_blank" rel="noopener"></a></p>
+        <button id="b-copiar" class="suave">Copiar link</button>
+      </div>
+    </div>
+    <p class="muted">Prototipo hecho en Nodo Cero. No reemplaza a la policía: en emergencia llama al 110.</p>
+  </section>
+</main>
+<div id="toast" class="oculto"></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const C = window.CONFIG || {};
+const $ = id => document.getElementById(id);
+const ver = (id, si) => $(id).classList.toggle('oculto', !si);
+let db, viaje = null, contactos = [], relojTimer = null, ultimaUbic = 0;
+
+function toast(t) { $('toast').textContent = t; ver('toast', true); clearTimeout(toast.t); toast.t = setTimeout(() => ver('toast', false), 3500); }
+function falla(e) { console.error(e); toast('Error: ' + (e.message || e)); }
+
+// ---------- Arranque ----------
+if (!C.CLERK_PUBLISHABLE_KEY || C.CLERK_PUBLISHABLE_KEY.includes('PEGAR')) {
+  ver('v-config', true);
+} else {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+  s.crossOrigin = 'anonymous';
+  s.dataset.clerkPublishableKey = C.CLERK_PUBLISHABLE_KEY;
+  s.onload = iniciar;
+  s.onerror = () => toast('No se pudo cargar Clerk. ¿Hay internet?');
+  document.head.appendChild(s);
+}
+
+async function iniciar() {
+  await Clerk.load({ localization: { locale: 'es-ES' } });
+  // Supabase recibe el token de Clerk: así las reglas (RLS) saben quién es.
+  db = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, {
+    accessToken: async () => (await Clerk.session?.getToken()) ?? null,
+  });
+  Clerk.addListener(({ user }) => mostrar(user));
+  mostrar(Clerk.user);
+}
+
+let dentro = null;
+function mostrar(user) {
+  const ahora = !!user;
+  if (ahora === dentro) return;
+  dentro = ahora;
+  ver('v-fuera', !ahora); ver('v-dentro', ahora);
+  if (ahora) {
+    Clerk.mountUserButton($('boton-usuaria'));
+    cargar();
+    clearInterval(mostrar.t); mostrar.t = setInterval(cargar, 15000);
+  } else {
+    clearInterval(mostrar.t);
+    Clerk.mountSignIn($('entrar'));
+  }
+}
+
+function miNombre() {
+  const u = Clerk.user;
+  return u.firstName || u.username || (u.primaryEmailAddress?.emailAddress || 'Tu amiga').split('@')[0];
+}
+
+// ---------- Datos ----------
+async function cargar() {
+  try {
+    const [v, c] = await Promise.all([
+      db.from('viajes').select('*').in('estado', ['en_camino', 'alerta', 'panico'])
+        .order('creado', { ascending: false }).limit(1),
+      db.from('contactos').select('*').order('creado'),
+    ]);
+    if (v.error) throw v.error; if (c.error) throw c.error;
+    viaje = v.data[0] || null; contactos = c.data;
+    pintar();
+  } catch (e) { falla(e); }
+}
+
+function pintar() {
+  // Contactos
+  const ul = $('lista-contactos'); ul.innerHTML = '';
+  for (const k of contactos) {
+    const li = document.createElement('li');
+    const n = document.createElement('span'); n.textContent = k.nombre;
+    const st = document.createElement('span');
+    st.className = k.telegram_chat_id ? 'ok' : 'espera';
+    st.textContent = k.telegram_chat_id ? '✅ conectado' : '⏳ falta abrir link';
+    if (!k.telegram_chat_id) { st.style.cursor = 'pointer'; st.onclick = () => invitar(k); }
+    const x = document.createElement('button'); x.className = 'x'; x.textContent = '✕'; x.title = 'Quitar';
+    x.onclick = () => quitarContacto(k);
+    const der = document.createElement('span'); der.append(st, x);
+    li.append(n, der); ul.append(li);
+  }
+  if (!contactos.length) ul.innerHTML = '<li class="muted">Todavía no hay contactos.</li>';
+  const conectados = contactos.some(k => k.telegram_chat_id);
+  ver('sin-contactos', !conectados);
+  $('b-salgo').disabled = !conectados;
+
+  // Viaje
+  ver('c-viaje', !!viaje); ver('c-salgo', !viaje);
+  clearInterval(relojTimer);
+  if (viaje) {
+    $('v-destino').textContent = 'Camino a ' + viaje.destino;
+    $('c-viaje').classList.toggle('aviso', viaje.estado !== 'en_camino');
+    $('b-llegue').textContent = viaje.estado === 'en_camino' ? 'Llegué ✅' : 'Estoy bien, ya llegué ✅';
+    ver('b-panico', viaje.estado === 'en_camino');
+    tic(); relojTimer = setInterval(tic, 1000);
+  }
+}
+
+function tic() {
+  const falta = Math.round((new Date(viaje.limite) - Date.now()) / 1000);
+  const a = Math.abs(falta), m = Math.floor(a / 60), s = String(a % 60).padStart(2, '0');
+  $('v-reloj').textContent = (falta < 0 ? '+' : '') + m + ':' + s;
+  $('v-reloj').classList.toggle('tarde', falta < 0);
+  $('v-estado').textContent =
+    viaje.estado === 'alerta' ? '⚠️ No confirmaste a tiempo: avisamos a tus contactos.' :
+    viaje.estado === 'panico' ? '🆘 Avisamos a tus contactos.' :
+    falta < 0 ? 'Se acabó el tiempo… avisando a tus contactos.' :
+    'Si no aprietas “Llegué”, avisamos a tus contactos.';
+  if (viaje.estado === 'en_camino' && Date.now() - ultimaUbic > 120000) actualizarUbicacion();
+}
+
+function ubicacion() {
+  return new Promise(ok => {
+    if (!navigator.geolocation) return ok(null);
+    navigator.geolocation.getCurrentPosition(
+      p => ok({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => ok(null), { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+  });
+}
+
+async function actualizarUbicacion() {
+  ultimaUbic = Date.now();
+  const u = await ubicacion();
+  if (u && viaje) await db.from('viajes').update(u).eq('id', viaje.id);
+}
+
+// ---------- Acciones ----------
+$('b-salgo').onclick = async () => {
+  const destino = $('f-destino').value.trim() || 'Casa';
+  const min = Number($('f-min').value);
+  $('b-salgo').disabled = true;
+  try {
+    const u = await ubicacion();
+    const { error } = await db.from('viajes').insert({
+      nombre: miNombre(), destino,
+      limite: new Date(Date.now() + min * 60000).toISOString(),
+      lat: u?.lat ?? null, lng: u?.lng ?? null,
+    });
+    if (error) throw error;
+    ultimaUbic = Date.now();
+    toast(u ? 'Buen viaje 💗 Avisamos a tus contactos.' : 'Buen viaje 💗 (sin ubicación: activa el GPS)');
+    await cargar();
+  } catch (e) { falla(e); $('b-salgo').disabled = false; }
+};
+
+async function cambiarEstado(estado, msg) {
+  try {
+    const { error } = await db.from('viajes').update({ estado }).eq('id', viaje.id);
+    if (error) throw error;
+    toast(msg); await cargar();
+  } catch (e) { falla(e); }
+}
+$('b-llegue').onclick = () => cambiarEstado('llego', '¡Qué bueno que llegaste! 💗');
+$('b-panico').onclick = () => {
+  if (confirm('¿Avisar YA a todos tus contactos con tu ubicación?')) {
+    actualizarUbicacion().finally(() => cambiarEstado('panico', 'Aviso enviado. Si puedes, llama al 110.'));
+  }
+};
+
+$('b-contacto').onclick = async () => {
+  const nombre = $('f-contacto').value.trim();
+  if (!nombre) return toast('Escribe un nombre');
+  try {
+    const { data, error } = await db.from('contactos').insert({ nombre }).select().single();
+    if (error) throw error;
+    $('f-contacto').value = '';
+    await cargar(); invitar(data);
+  } catch (e) { falla(e); }
+};
+
+async function quitarContacto(k) {
+  if (!confirm('¿Quitar a ' + k.nombre + '?')) return;
+  const { error } = await db.from('contactos').delete().eq('id', k.id);
+  if (error) return falla(error);
+  ver('c-invitar', false); cargar();
+}
+
+function invitar(k) {
+  const url = `https://t.me/${C.TELEGRAM_BOT}?start=${k.codigo}`;
+  $('inv-nombre').textContent = k.nombre;
+  $('inv-link').href = url; $('inv-link').textContent = url;
+  const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+  $('inv-qr').innerHTML = qr.createSvgTag(5, 0);
+  ver('c-invitar', true);
+  $('b-copiar').onclick = () => navigator.clipboard.writeText(url).then(() => toast('Link copiado'));
+}
+</script>
+</body>
+</html>

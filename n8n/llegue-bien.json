@@ -1,0 +1,458 @@
+{
+  "name": "Llegué Bien",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "llegue-clerk",
+        "options": {}
+      },
+      "id": "d688d74f-8129-4a6f-8349-ab55f4ff3df7",
+      "name": "Clerk: usuaria nueva",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "820e6425-9ce4-4500-b95e-fba59fe3969a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body || {};\nif (b.type !== 'user.created') return [];\nconst u = b.data;\nconst nombre = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username || '';\nconst email = (u.email_addresses || [])[0]?.email_address || '';\nreturn [{ json: { id: u.id, nombre, email } }];"
+      },
+      "id": "b9bf80e5-bf20-45c3-87db-72923e7da313",
+      "name": "Solo user.created",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "tableId": "perfiles",
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $json.nombre }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.email }}"
+            }
+          ]
+        }
+      },
+      "id": "0a01b2d8-53a7-4b2d-9daa-d99448cbc7f5",
+      "name": "Guardar perfil",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "386ab86e-e4f7-4cfb-be23-e0f7050a617e",
+      "name": "Telegram: mensaje al bot",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "e231e920-a5da-4b0c-8be8-0f3d8952d787"
+    },
+    {
+      "parameters": {
+        "jsCode": "const m = $json.message || {};\nconst r = /^\\/start\\s+([a-f0-9]{8})$/.exec((m.text || '').trim());\nif (!r) return [];\nreturn [{ json: { codigo: r[1], chat_id: m.chat.id } }];"
+      },
+      "id": "5274e460-3db8-4503-bd1e-feb3c4a8c4c7",
+      "name": "Leer código",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "contactos",
+        "filterType": "string",
+        "filterString": "=codigo=eq.{{ $json.codigo }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "telegram_chat_id",
+              "fieldValue": "={{ $json.chat_id }}"
+            }
+          ]
+        }
+      },
+      "id": "24959102-77ad-4e63-bb7f-06d43bc8f383",
+      "name": "Vincular contacto",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        440,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.telegram_chat_id }}",
+        "text": "=Hola {{ $json.nombre }} 💗 Ahora eres contacto de confianza en Llegué Bien. Te aviso cuando salga, cuando llegue y si no llega a tiempo.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8b9c7249-05c6-4db4-b788-87ecbfea3735",
+      "name": "Confirmar al contacto",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "llegue-viajes",
+        "options": {}
+      },
+      "id": "3c638427-3ec9-4150-b254-6bbad89f5e1f",
+      "name": "Supabase: cambio en viajes",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "bc4e3cdd-b4c4-4940-9956-7d3f33997cab"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body || {};\nconst r = b.record, o = b.old_record || {};\nif (!r) return [];\nconst hora = new Date(r.limite).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', timeZone: 'America/La_Paz' });\nconst mapa = r.lat != null ? `\\n📍 https://maps.google.com/?q=${r.lat},${r.lng}` : '';\nlet texto = null;\nif (b.type === 'INSERT')\n  texto = `🚶‍♀️ ${r.nombre} salió hacia ${r.destino}. Debería llegar a las ${hora}.`;\nelse if (r.estado === 'llego' && o.estado !== 'llego')\n  texto = `✅ ${r.nombre} llegó bien a ${r.destino}.`;\nelse if (r.estado === 'panico' && o.estado !== 'panico')\n  texto = `🆘 ${r.nombre} apretó PÁNICO camino a ${r.destino}.${mapa}\\nLlámala ya. Si no responde, llama al 110.`;\nif (!texto) return [];\nreturn [{ json: { usuaria_id: r.usuaria_id, texto } }];"
+      },
+      "id": "1fc5b4c7-d673-4874-9b10-918c6c2cb95f",
+      "name": "Armar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contactos",
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "=usuaria_id=eq.{{ $json.usuaria_id }}&telegram_chat_id=not.is.null"
+      },
+      "id": "3406fe8c-3ef1-4c8c-b320-62938142fa6c",
+      "name": "Contactos (aviso)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        440,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.telegram_chat_id }}",
+        "text": "={{ $('Armar aviso').item.json.texto }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8d482137-4e24-40b9-abbf-39c222af7b27",
+      "name": "Enviar aviso",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "c37402c3-0916-4768-82fb-26576a2320f0",
+      "name": "Cada minuto",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "viajes",
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "=estado=eq.en_camino&limite=lt.{{ $now.toUTC().toISO() }}"
+      },
+      "id": "d567d303-5742-46dd-8e50-d05b561d499e",
+      "name": "Viajes vencidos",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        220,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "viajes",
+        "filterType": "string",
+        "filterString": "=id=eq.{{ $json.id }}&estado=eq.en_camino",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado",
+              "fieldValue": "alerta"
+            }
+          ]
+        }
+      },
+      "id": "c9f23fb7-a86a-4de1-9cd0-a4c88ad614b2",
+      "name": "Marcar alerta",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        440,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json;\nconst hora = new Date(r.limite).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', timeZone: 'America/La_Paz' });\nconst mapa = r.lat != null ? `\\n📍 Última ubicación: https://maps.google.com/?q=${r.lat},${r.lng}` : '\\n(No compartió ubicación)';\nreturn { json: { usuaria_id: r.usuaria_id,\n  texto: `⚠️ ${r.nombre} debía llegar a ${r.destino} a las ${hora} y NO confirmó.${mapa}\\nLlámala. Si no responde, llama al 110.` } };"
+      },
+      "id": "0efdbd60-47f0-46b0-9042-16e1425f792c",
+      "name": "Armar alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contactos",
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "=usuaria_id=eq.{{ $json.usuaria_id }}&telegram_chat_id=not.is.null"
+      },
+      "id": "b882858f-37bd-4b40-8f38-ad8c3cf85d86",
+      "name": "Contactos (alerta)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.telegram_chat_id }}",
+        "text": "={{ $('Armar alerta').item.json.texto }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "3009794a-ed08-4733-b1e0-d016ab64ef60",
+      "name": "Enviar alerta",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        720
+      ]
+    }
+  ],
+  "connections": {
+    "Clerk: usuaria nueva": {
+      "main": [
+        [
+          {
+            "node": "Solo user.created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solo user.created": {
+      "main": [
+        [
+          {
+            "node": "Guardar perfil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: mensaje al bot": {
+      "main": [
+        [
+          {
+            "node": "Leer código",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer código": {
+      "main": [
+        [
+          {
+            "node": "Vincular contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vincular contacto": {
+      "main": [
+        [
+          {
+            "node": "Confirmar al contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: cambio en viajes": {
+      "main": [
+        [
+          {
+            "node": "Armar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar aviso": {
+      "main": [
+        [
+          {
+            "node": "Contactos (aviso)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contactos (aviso)": {
+      "main": [
+        [
+          {
+            "node": "Enviar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cada minuto": {
+      "main": [
+        [
+          {
+            "node": "Viajes vencidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Viajes vencidos": {
+      "main": [
+        [
+          {
+            "node": "Marcar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar alerta": {
+      "main": [
+        [
+          {
+            "node": "Armar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar alerta": {
+      "main": [
+        [
+          {
+            "node": "Contactos (alerta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contactos (alerta)": {
+      "main": [
+        [
+          {
+            "node": "Enviar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/La_Paz"
+  },
+  "pinData": {}
+}
