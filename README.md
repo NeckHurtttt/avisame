@@ -1,4 +1,8 @@
-# Llegué Bien 💗
+# Avisame 💗
+
+> *"Avisame cuando llegues."* Ahora no depende de que alguien se acuerde.
+
+**Página:** https://neckhurtttt.github.io/avisame/ (muestra "Falta configurar" hasta llenar `config.js`)
 
 Marca cuándo sales. Si no confirmas que llegaste a tiempo, tus contactos de confianza reciben una alerta por Telegram con tu última ubicación. Hecho para **Nodo Cero — Hackathon n8n Bolivia**.
 
@@ -30,7 +34,7 @@ Clerk ──webhook user.created──▶  n8n  ◀── cada minuto: viajes ve
 | `index.html` | La app (una sola página, funciona en el celular) |
 | `config.js` | Claves públicas (llenar) |
 | `supabase.sql` | Tablas y reglas |
-| `n8n/llegue-bien.json` | Workflow para importar en n8n |
+| `n8n/avisame.json` | Workflow para importar en n8n |
 
 ## Puesta en marcha (≈ 40 min)
 
@@ -39,7 +43,7 @@ Clerk ──webhook user.created──▶  n8n  ◀── cada minuto: viajes ve
    En Supabase → *Authentication → Sign In / Providers → Third-Party Auth* → **Add Clerk** → pegar el dominio.
 3. **Telegram:** hablar con **@BotFather** → `/newbot` → guardar el **token** y el **nombre del bot**.
 4. **n8n** (n8n Cloud de prueba, o uno propio con HTTPS público — el trigger de Telegram lo necesita):
-   - *Import from file* → `n8n/llegue-bien.json`.
+   - *Import from file* → `n8n/avisame.json`.
    - Crear credencial **Supabase** (Host = URL del proyecto, Service Role Secret = *service_role key* de Supabase → *Project Settings → API*).
    - Crear credencial **Telegram** con el token.
    - Abrir cada nodo rojo y elegir la credencial. Guardar y **activar** el workflow.

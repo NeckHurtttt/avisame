@@ -1,5 +1,5 @@
 {
-  "name": "Llegué Bien",
+  "name": "Avisame",
   "nodes": [
     {
       "parameters": {
@@ -118,7 +118,7 @@
     {
       "parameters": {
         "chatId": "={{ $json.telegram_chat_id }}",
-        "text": "=Hola {{ $json.nombre }} 💗 Ahora eres contacto de confianza en Llegué Bien. Te aviso cuando salga, cuando llegue y si no llega a tiempo.",
+        "text": "=Hola {{ $json.nombre }} 💗 Ahora eres contacto de confianza en Avisame. Te aviso cuando salga, cuando llegue y si no llega a tiempo.",
         "additionalFields": {
           "appendAttribution": false
         }
